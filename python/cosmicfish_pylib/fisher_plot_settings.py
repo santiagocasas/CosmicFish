@@ -151,13 +151,12 @@ class CosmicFish_PlotSettings():
             dictionary settings.
         
         """
-        
         # colors:
         self.use_nice_colors     = False
         self.nice_colors_palette = None
-        self.line_colors         = ['#006FED', '#E03424', 'black', '#009966', '#000866', '#336600', '#006633', 'm','r']  
-        self.solid_colors        = ['#006FED', '#E03424', 'gray', '#009966', '#000866', '#336600', '#006633', 'm','r']  
-        self.linestyle           = ['-','-','-','-','-','-','-','-','-'] 
+        self.line_colors         = ['darkorchid', 'yellowgreen','dodgerblue', 'darkorange','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
+        self.solid_colors        = ['darkorchid', 'yellowgreen','dodgerblue', 'darkorange','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
+        self.linestyle           = ['-','-',':','-','-','-','-','-','-'] 
         
         # options for 1D plots:
         self.D1_confidence_level     = [ 0.95, 0.68 ]      
@@ -183,8 +182,8 @@ class CosmicFish_PlotSettings():
         self.D1_y_label_rotation     = 90                  
         self.D1_prob_label           = u'$P/P_{\\rm max}$' 
         self.D1_norm_prob_label      = u'$P$'              
-        self.D1_main_fontsize        = 10.0                
-        self.D1_secondary_fontsize   = 9.0                 
+        self.D1_main_fontsize        = 20.0                
+        self.D1_secondary_fontsize   = 16.0                 
         self.D1_show_best_fit        = False               
     
         # options for 2D plots:
@@ -208,8 +207,8 @@ class CosmicFish_PlotSettings():
         self.D2_show_yaxis_label     = True                
         self.D2_x_label_rotation     = 0                   
         self.D2_y_label_rotation     = 90                  
-        self.D2_main_fontsize        = 10.0                
-        self.D2_secondary_fontsize   = 9.0                 
+        self.D2_main_fontsize        = 20.0                
+        self.D2_secondary_fontsize   = 16.0                 
         self.D2_show_best_fit        = False               
         
         # options for the global figure:
@@ -225,13 +224,13 @@ class CosmicFish_PlotSettings():
         # options for the legend:
         self.do_legend               = True                
         self.legend_filled           = True                
-        self.legend_fontsize         = 10.0                
+        self.legend_fontsize         = 14.0                
         self.legend_frame            = True                
         self.legend_fancybox         = False               
         self.legend_shadow           = False               
         self.legend_markerfirst      = True                
         self.legend_ncol             = 1                   
-        self.legend_loc              = 'lower center'      
+        self.legend_loc              = 'upper right'      
         self.legend_takes_place_plot = False               
         self.legend_takes_place_plot_tri = True
         
@@ -239,7 +238,7 @@ class CosmicFish_PlotSettings():
         self.title_fontsize          = 10.0                
 
         # matplotlib relevant options:
-        matplotlib.rcParams['savefig.transparent'] = True
+        matplotlib.rcParams['savefig.transparent'] = False
         matplotlib.rcParams['figure.autolayout']   = False
         matplotlib.rcParams['xtick.major.pad']     = 4.0
         matplotlib.rcParams['ytick.major.pad']     = 4.0
