@@ -132,6 +132,7 @@ if __name__ == "__main__":
     sum_fish  = Config.get("General Options", "sum_fish").split("\n")
     eliminate = Config.getboolean("General Options", "eliminate")
     fishnames = Config.get("General Options", "names").split("\n")
+    pform     = '.pdf'
 
     #General screen output
     if not args.quiet:
@@ -150,6 +151,16 @@ if __name__ == "__main__":
        print ' ---------------------------------'
        print
        print
+       print 'Creating Output root directory if nonexisting'
+       
+       outdir = os.path.dirname(outroot)
+       # create directory if it does not exist
+       if outdir=='':
+           print('Output root is on working folder')
+       elif not os.path.exists(outdir):
+           os.makedirs(outdir)
+       else: 
+           print(str(outdir)+'  exists already')
 
     if not files[0]:
        if not sum_fish[0]:
@@ -208,11 +219,11 @@ if __name__ == "__main__":
         plotter.new_plot()
         plotter.plot1D( params=params )
 
-        plotter.export( outroot+'_1Dplot_'+str(key)+'.png' )
+        plotter.export( outroot+'_1Dplot_'+str(key)+pform )
         plotter.close_plot()
         if not args.quiet:
            print ' 1D plots done for parameters '+str(params)
-           print ' Saved results in: ', outroot+'_1Dplot_'+str(key)+'.png'
+           print ' Saved results in: ', outroot+'_1Dplot_'+str(key)+pform
 
     if not args.quiet and len(num1D)>0:
         print '1D plots done!'
@@ -230,21 +241,23 @@ if __name__ == "__main__":
            fishers_temp = fishers_temp.reshuffle( params=params )
 
         plot_settings = fps.CosmicFish_PlotSettings()
+        #plot_settings = {'solid_colors' : ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']}
         plotter = fp.CosmicFishPlotter( settings=plot_settings, fishers=fishers_temp)
+        #plotter = fp.CosmicFishPlotter(fishers=fishers_temp)
 
         if params is not None:
            params = [ list(i) for i in it.combinations(params, 2)]
            if len(params)==0:
               raise ValueError('Not enough parameters for 2D plot.')
-
+ 
         plotter.new_plot()
         plotter.plot2D( params=params )
 
-        plotter.export( outroot+'_2Dplot_'+str(key)+'.png' )
+        plotter.export( outroot+'_2Dplot_'+str(key)+pform )
         plotter.close_plot()
         if not args.quiet:
            print ' 2D plots done for parameters '+str(params)
-           print ' Saved results in: ', outroot+'_2Dplot_'+str(key)+'.png'
+           print ' Saved results in: ', outroot+'_2Dplot_'+str(key)+pform
 
     if not args.quiet and len(num2D)>0:
         print '2D plots done!'
@@ -267,11 +280,11 @@ if __name__ == "__main__":
         plotter.new_plot()
         plotter.plot_tri( params=params )
 
-        plotter.export( outroot+'_triplot_'+str(key)+'.png' )
+        plotter.export( outroot+'_triplot_'+str(key)+pform )
         plotter.close_plot()
         if not args.quiet:
            print ' Triangular plots done for parameters '+str(params)
-           print ' Saved results in: ', outroot+'_triplot_'+str(key)+'.png'
+           print ' Saved results in: ', outroot+'_triplot_'+str(key)+pform
 
     if not args.quiet and len(numtri)>0:
         print 'Triangular plots done!'
@@ -279,8 +292,32 @@ if __name__ == "__main__":
     #Producing bounds files:
     # get the parameters:
     numbounds     = [ i for i in Config.items( "bounds" ) if "params" in i[0] ]
+    numfoms     = [ i for i in Config.items( "FoMs" ) if "params" in i[0] ]
     use_latex     = Config.getboolean( "bounds",'use_latex')
     latex_num_col = Config.getint( "bounds",'latex_num_col')
+    
+    if len(numfoms)>0:
+        if outroot is not None:
+            out_file_fom = open(outroot+'_FoMs.txt',"w")
+        for key, params in numbounds:
+            params = Config.get("FoMs", key).split(",")
+            fishers_temp = fishers
+            for num, fish in enumerate(fishers_temp.get_fisher_list()):
+                out_file_fom.write( 'FoM for ('+', '.join(params)+')\n' )
+		print(fish.name)
+                out_file_fom.write( str(fish.name)+' \n' )
+		fishpars=fish.get_param_names()
+                print("all parameter names")
+	        print(str(fishpars))
+		fishfom=fo.marginalise(fish, params)
+                print("FoM for params: ")
+		print(str(params))
+		fom=fishfom.determinant() 
+		fom=np.sqrt(fom)
+		print(str(fom))
+                out_file_fom.write( str(fom)+' \n' )
+
+        out_file_fom.close()
 
     if len(numbounds)>0:
     
@@ -292,6 +329,7 @@ if __name__ == "__main__":
         if outroot is not None:
             out_file = open(outroot+'_bounds.txt',"w")
     
+        
         # do some first printing for Latex:
         if use_latex:
             out_file.write( '\\begin{tabular}{ |'+''.join(['l|' for i in range(latex_num_col) ])+' }\n' )
@@ -306,6 +344,13 @@ if __name__ == "__main__":
                fishers_temp = fishers_temp.marginalise( params=params )
             
             for num, fish in enumerate(fishers_temp.get_fisher_list()):
+                #output fisher matrices again
+                fish.save_to_file(outroot+'__Fisher_Out_'+str(num)+"-"+fish.name, simple_header=True)
+		print(fish.name)
+		fishpars=fish.get_param_names()
+                print("parameter names")
+	        print(str(fishpars))
+                
                 # get the bounds:
                 Bounds_68 = list( fu.v_nice_number( fish.get_confidence_bounds( 0.680 ), mode=1 ) )
                 Bounds_95 = list( fu.v_nice_number( fish.get_confidence_bounds( 0.950 ), mode=1 ) )
@@ -382,7 +427,6 @@ if __name__ == "__main__":
             out_file.write( '\end{tabular}' )
         # close the file:
             out_file.close()  
-        
         if not args.quiet:
             print ' Saved results in: ', outroot+'_bounds.txt'
             print 'bounds done!'
