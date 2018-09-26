@@ -349,6 +349,7 @@ class fisher_matrix():
         out_file.write( '# This file contains the parameter names for a Fisher matrix.\n' )
         out_file.write( '#\n' )
         # write the parameters:
+        if sum(self.get_param_fiducial())==0 : print("** warning: all fiducials are set to zero in .paramnames file")
         for ind in xrange( self.num_params ):
             param_name = self.get_param_name( ind+1 )
             out_file.write( str(param_name)+'    '+ \
@@ -360,7 +361,7 @@ class fisher_matrix():
     
     # -----------------------------------------------------------------------------------
 
-    def save_to_file( self, file_name ):
+    def save_to_file( self, file_name, simple_header=False):
         """
         Saves the fisher matrix to a file. Notice that the file name has to be specified
         to avoid overwriting an existing fisher matrix.
@@ -373,21 +374,26 @@ class fisher_matrix():
         self.save_paramnames_to_file( file_name=file_name+'.paramnames' )
         # open the output file:
         out_file = open( file_name+'.dat', 'w' )
-        # write the header:        
-        out_file.write( '#\n' )
-        out_file.write( '# This file contains a Fisher matrix created with the CosmicFish code.\n' )
-        out_file.write( '#\n' )
-        out_file.write( '# The parameters of this Fisher matrix are:\n' )
-        out_file.write( '#\n' )
-        # write the param names commented:
-        for ind in xrange( self.num_params ):
-            param_name = self.get_param_name( ind+1 )
-            out_file.write( '#'+'    '+str(ind+1)+'    '+ \
-                            str(param_name)+'    '+ \
-                            str(self.get_param_name_latex( param_name ))+'    '+ \
-                            str(self.get_fiducial( param_name ))+'\n'
-                            )
-        out_file.write( '#\n' )
+        # write the header:
+        if simple_header==False:        
+            out_file.write( '#\n' )
+            out_file.write( '# This file contains a Fisher matrix created with the CosmicFish code.\n' )
+            out_file.write( '#\n' )
+            out_file.write( '# The parameters of this Fisher matrix are:\n' )
+            out_file.write( '#\n' )
+            # write the param names commented:
+            for ind in xrange( self.num_params ):
+                param_name = self.get_param_name( ind+1 )
+                out_file.write( '#'+'    '+str(ind+1)+'    '+ \
+                                str(param_name)+'    '+ \
+                                str(self.get_param_name_latex( param_name ))+'    '+ \
+                                str(self.get_fiducial( param_name ))+'\n'
+                                )
+            out_file.write( '#\n' )
+        elif simple_header==True:
+            parnamsarr=[self.get_param_name( ind+1 ) for ind in range(self.num_params)]
+            out_file.write( '#  '+'    '.join(parnamsarr) )
+            out_file.write( '\n' )
         # write the fisher matrix:
         fisher_matrix = self.get_fisher_matrix()
         for i in xrange( self.num_params ):
