@@ -769,7 +769,7 @@ class CosmicFishPlotter():
         # get the default renderer:
         renderer = matplotlib.backend_bases.RendererBase()
         # default dpi is 72.0:
-        default_dpi = 72.0
+        default_dpi = 60.0
         # get the size of the figure:
         figure_x_size = self.figure.get_size_inches()[0] #: in inches
         figure_y_size = self.figure.get_size_inches()[1] #: in inches
