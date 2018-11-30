@@ -368,7 +368,9 @@ if __name__ == "__main__":
                 if use_latex:
                     print_table = []
                     for par,fid,bound in zip( parameter_names_latex,fiducial,Bounds_68 ):
-                        print_table.append( '$'+str(par)+' = '+str(fid)+' \pm '+str(bound)+'$' )
+                        perc=abs((bound/fid)*100)
+                        '{:{4}.{3}f}'.format
+                        print_table.append( '$\sigma_{'+str(par)+'} = '+str('{:4.2f}'.format(perc))+'\% $' )
                     if len(print_table)%latex_num_col == 0:
                         table_length = len(print_table)/latex_num_col
                     else:

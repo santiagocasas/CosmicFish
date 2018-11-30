@@ -156,6 +156,8 @@ class CosmicFish_PlotSettings():
         self.nice_colors_palette = None
         self.line_colors         = ['darkorchid', 'yellowgreen','dodgerblue', 'darkorange','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
         self.solid_colors        = ['darkorchid', 'yellowgreen','dodgerblue', 'darkorange','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
+        #self.line_colors         = ['darkorchid', 'dodgerblue','darkorange','forestgreen','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
+        #self.solid_colors        = ['darkorchid', 'dodgerblue','darkorange','forestgreen','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
         self.linestyle           = ['-','-',':','-','-','-','-','-','-'] 
         
         # options for 1D plots:
