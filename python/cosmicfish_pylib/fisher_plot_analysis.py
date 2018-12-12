@@ -393,7 +393,7 @@ class CosmicFish_FisherAnalysis():
     
     # -----------------------------------------------------------------------------------
     
-    def compute_plot_range(self, params=None, confidence_level=0.68, names=None, nice=True ):
+    def compute_plot_range(self, params=None, confidence_level=0.68, range_factors={'default':1.0}, names=None, nice=True ):
         """
         Function that computes a meaningfull plot range for the plots involving the specified parameters
         and the specified Fisher names.
@@ -426,7 +426,7 @@ class CosmicFish_FisherAnalysis():
         # compute the confidence coefficient:
         confidence_coefficient = fu.confidence_coefficient( confidence_level )
         # get the ranges:
-        range = []
+        rangefinal = []
         for i in params_temp:
             lower_bound = []
             upper_bound  = []
@@ -440,24 +440,31 @@ class CosmicFish_FisherAnalysis():
                 sigma    = j.get_fisher_inverse()[index,index]
                 sigma    = math.sqrt( sigma )
                 fiducial = j.get_fiducial(i)
+                #apply rescaling factor
+                resc_def = range_factors['default']
+                # try to find rescaling factor for given parameter, otherwise return default
+                resc     = range_factors.get(i, resc_def)
+
+                #create sigmarang
+                sigmarang = confidence_coefficient*sigma*resc
                 # apply a coefficient to safeguard:
                 if not nice:
-                    sigma = confidence_coefficient*sigma
+                    sigma = sigmarang
                 # store the values:
                 if nice:
-                    lower_bound.append(fu.significant_digits( (fiducial-confidence_coefficient*sigma, sigma), mode=2 ) )
-                    upper_bound.append(fu.significant_digits( (fiducial+confidence_coefficient*sigma, sigma), mode=0 ) )
+                    lower_bound.append(fu.significant_digits( (fiducial-sigmarang, sigmarang), mode=2 ) )
+                    upper_bound.append(fu.significant_digits( (fiducial+sigmarang, sigmarang), mode=0 ) )
                 else:
-                    lower_bound.append(fiducial-sigma)
-                    upper_bound.append(fiducial+sigma)
+                    lower_bound.append(fiducial-sigmarang)
+                    upper_bound.append(fiducial+sigmarang)
             # decide what to use:
             upper_bound = np.array(upper_bound)
             lower_bound = np.array(lower_bound)
-            range.append([ float(str(np.amin(lower_bound))), float(str(np.amax(upper_bound))) ])
+            rangefinal.append([ float(str(np.amin(lower_bound))), float(str(np.amax(upper_bound))) ])
         
         dict = {}
         for i,j in zip(params_temp,xrange(len(params_temp))):
-            dict[i] = range[j]
+            dict[i] = rangefinal[j]
             
         return dict
             

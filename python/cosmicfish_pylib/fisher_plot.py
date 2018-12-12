@@ -469,6 +469,7 @@ class CosmicFishPlotter():
                 raise ValueError('The input names are not in the list of fisher names')
         # check the settings:
         confidence_level = self.setting_setter('D1_confidence_level', **kwargs)
+        range_factors = self.setting_setter('D1_range_factors', **kwargs)
         num_points = self.setting_setter('D1_num_points', **kwargs)
         linewidth  = self.setting_setter('D1_line_thickness', **kwargs)
         normalized = self.setting_setter('D1_norm_prob', **kwargs)
@@ -512,7 +513,7 @@ class CosmicFishPlotter():
                           linewidth = linewidth, 
                           label     = self.bind_labels[name] )
         # set the plot range:
-        x_limits = self.plot_fishers.compute_plot_range(params=param, confidence_level=max(confidence_level), names=names_temp, nice=nice)[param]
+        x_limits = self.plot_fishers.compute_plot_range(params=param, confidence_level=max(confidence_level), range_factors=range_factors, names=names_temp, nice=nice)[param]
         subplot.set_xlim( x_limits )
         subplot.set_ylim( [0.0, 1.05] )
         # set the ticks and ticks labels:
@@ -589,6 +590,7 @@ class CosmicFishPlotter():
                 raise ValueError('The input names are not in the list of fisher names')
         # check the settings:
         confidence_level = self.setting_setter('D2_confidence_levels', **kwargs)
+        range_factors = self.setting_setter('D2_range_factors', **kwargs)
         num_points = self.setting_setter('D2_num_points', **kwargs)
         linewidth  = self.setting_setter('D2_line_thickness', **kwargs)
         nice       = self.setting_setter('D2_use_nice_numbers', **kwargs)
@@ -632,23 +634,27 @@ class CosmicFishPlotter():
                               label     = self.bind_labels[name] )
                 
         # set the plot range:
-        ranges = self.plot_fishers.compute_plot_range(params=[param1,param2], confidence_level=max(confidence_level), names=names_temp, nice=nice)
-        subplot.set_xlim( ranges[param1] )
-        subplot.set_ylim( ranges[param2] )
+        ranges = self.plot_fishers.compute_plot_range(params=[param1,param2], confidence_level=max(confidence_level), range_factors=range_factors, names=names_temp, nice=nice)
+        #print(ranges[param1])
+        #print(ranges[param2])
+        rang1 = ranges[param1]
+        rang2 = ranges[param2]
+        subplot.set_xlim( rang1 )
+        subplot.set_ylim( rang2 )
         # set the ticks and ticks labels:
         if show_x_ticks:
-            subplot.set_xticks( np.linspace(ranges[param1][0], ranges[param1][1], number_x_ticks)  )
+            subplot.set_xticks( np.linspace(rang1[0], rang1[1], number_x_ticks)  )
         else:
             subplot.set_xticks([])
         if show_y_ticks:
-            subplot.set_yticks( np.linspace( ranges[param2][0], ranges[param2][1], number_y_ticks)  )
+            subplot.set_yticks( np.linspace( rang2[0], rang2[1], number_y_ticks)  )
         else:
             subplot.set_yticks([])
         # xticks:
         if not show_x_ticks_labels:
             subplot.set_xticklabels( [] )
         else:
-            xticks = np.linspace(ranges[param1][0], ranges[param1][1], number_x_ticks)
+            xticks = np.linspace(rang1[0], rang1[1], number_x_ticks)
             xticks = [ u'$'+str('{}'.format(i))+'$' for i in xticks ]
             subplot.set_xticklabels( xticks, fontsize=secondary_fontsize )
             if xlabel_up: subplot.xaxis.tick_top()
@@ -656,7 +662,7 @@ class CosmicFishPlotter():
         if not show_y_ticks_labels:
             subplot.set_yticklabels( [] )
         else:
-            yticks = np.linspace( ranges[param2][0], ranges[param2][1], number_y_ticks)
+            yticks = np.linspace( rang2[0], rang2[1], number_y_ticks)
             yticks = [ u'$'+str('{}'.format(i))+'$' for i in yticks ]
             subplot.set_yticklabels( yticks, fontsize=secondary_fontsize )
             if ylabel_right: subplot.yaxis.tick_right()

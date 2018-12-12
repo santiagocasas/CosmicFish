@@ -57,6 +57,7 @@ class CosmicFish_PlotSettings():
     :ivar linestyle: list of line style to use. Default:
         
     :ivar D1_confidence_level: list with the confidence levels for the 1D plot. Default: [ 0.95, 0.68 ]
+    :ivar D1_range_factors: list with factors for the plot range, which multiply the confidence levels for the 1D plot. Default: [1.0]
     :ivar D1_num_points: number of points per line in the plot. Default: 100
     :ivar D1_line_thickness: thickness of the line. Default: 1.0
     :ivar D1_norm_prob: wether to normalize the distribution or set the maximum to one. Default: False
@@ -84,6 +85,7 @@ class CosmicFish_PlotSettings():
     :ivar D1_show_best_fit: show a vertical line on the fiducial. NOT YET IMPLEMENTED. Default: False
 
     :ivar D2_confidence_levels: list with confidence levels for the 2D plot. Default: [ 0.95, 0.68 ]      
+    :ivar D2_range_factors: list with factors for the plot range, which multiply the confidence levels for the 2D plot. Default: [1.0]
     :ivar D2_num_points: number of points per line in the plot. Default: 100 
     :ivar D2_line_thickness: thickness of the lines. Default: 1.0 
     :ivar D2_use_nice_numbers: wether to use nice numbers when doing 2D plots. Default: True
@@ -154,14 +156,15 @@ class CosmicFish_PlotSettings():
         # colors:
         self.use_nice_colors     = False
         self.nice_colors_palette = None
+      #standard
         self.line_colors         = ['darkorchid', 'yellowgreen','dodgerblue', 'darkorange','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
+      #standard  
         self.solid_colors        = ['darkorchid', 'yellowgreen','dodgerblue', 'darkorange','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
-        #self.line_colors         = ['darkorchid', 'dodgerblue','darkorange','forestgreen','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
-        #self.solid_colors        = ['darkorchid', 'dodgerblue','darkorange','forestgreen','#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d']  
         self.linestyle           = ['-','-',':','-','-','-','-','-','-'] 
         
         # options for 1D plots:
         self.D1_confidence_level     = [ 0.95, 0.68 ]      
+        self.D1_range_factors        = {"default" : 1.0}
         self.D1_num_points           = 100                 
         self.D1_line_thickness       = 1.0                 
         self.D1_norm_prob            = False               
@@ -189,7 +192,8 @@ class CosmicFish_PlotSettings():
         self.D1_show_best_fit        = False               
     
         # options for 2D plots:
-        self.D2_confidence_levels    = [ 0.95, 0.68 ]      
+        self.D2_confidence_levels    = [ 0.95, 0.68 ]
+        self.D2_range_factors        = {"default" : 1.0}
         self.D2_num_points           = 100                 
         self.D2_line_thickness       = 1.0                 
         self.D2_use_nice_numbers     = True                
@@ -209,7 +213,7 @@ class CosmicFish_PlotSettings():
         self.D2_show_yaxis_label     = True                
         self.D2_x_label_rotation     = 0                   
         self.D2_y_label_rotation     = 90                  
-        self.D2_main_fontsize        = 20.0                
+        self.D2_main_fontsize        = 18.0                
         self.D2_secondary_fontsize   = 16.0                 
         self.D2_show_best_fit        = False               
         
@@ -226,7 +230,7 @@ class CosmicFish_PlotSettings():
         # options for the legend:
         self.do_legend               = True                
         self.legend_filled           = True                
-        self.legend_fontsize         = 14.0                
+        self.legend_fontsize         = 18.0                
         self.legend_frame            = True                
         self.legend_fancybox         = False               
         self.legend_shadow           = False               
@@ -306,7 +310,8 @@ __accepted_settings__=[
     'line_colors',    
     'solid_colors',
     'linestyle',  
-    'D1_confidence_level',      
+    'D1_confidence_level',
+    'D1_range_factors',
     'D1_num_points',       
     'D1_line_thickness',    
     'D1_norm_prob',
@@ -331,6 +336,7 @@ __accepted_settings__=[
     'D1_secondary_fontsize',
     'D1_show_best_fit',
     'D2_confidence_levels',
+    'D2_range_factors',
     'D2_num_points',
     'D2_line_thickness',
     'D2_use_nice_numbers',
