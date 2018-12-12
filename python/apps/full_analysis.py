@@ -234,9 +234,11 @@ if __name__ == "__main__":
         color_dict = None
  
     #rescale factors for plot ranges
-    ##rescale_factors_D2 = [0.42,0.2,0.42,0.42,0.42,0.42,0.42]
-    rescale_factors_D2   = {'default' : 0.42, 'h' : 0.05}
-    rescale_factors_D1   = {'default' : 1.0, 'h' : 0.1}
+    rescale_factors_D2   = {'default' : 0.42, 'h' : 0.05}  
+    #use this for rescaling plot ranges, default applies for all parameters, except those mentioned explicitly.
+    rescale_factors_D1   = {'default' : 1.0, 'h' : 0.05}
+    #rescale_factors_D2   = {'default' : 1.0}
+    #rescale_factors_D1   = {'default' : 1.0}
     #producing 1D plots
     num1D = Config.items( "1Dplot" )
         
@@ -300,7 +302,7 @@ if __name__ == "__main__":
 
     if not args.quiet and len(num2D)>0:
         print '2D plots done!'
-
+    ###################
     #Producing triangular plots
     numtri = Config.items( "triplot" )
     if not args.quiet and len(numtri)>0:
@@ -312,10 +314,11 @@ if __name__ == "__main__":
         if eliminate is not False:
            fishers_temp = fishers_temp.reshuffle( params=params )
         
-        if len(params) > 3:
-            legendfont=28.0
-        else:
-            legendfont=9.0
+        #if len(params) >= 3:
+        #    legendfont=28.0
+        #else:
+        legendfont=4.25*len(params)
+        
         plot_settings = fps.CosmicFish_PlotSettings()
         fps.CosmicFish_PlotSettings.update(plot_settings, color_dict)
         plotter = fp.CosmicFishPlotter( settings=plot_settings, fishers=fishers_temp)
@@ -324,7 +327,9 @@ if __name__ == "__main__":
         plotter.plot_tri( params=params, legend_takes_place_plot_tri=True, 
                 legend_fontsize=legendfont, D2_range_factors=rescale_factors_D2, 
                 D1_range_factors=rescale_factors_D1 ,
-                D1_num_points=1000)
+                D1_num_points=1000,
+                D2_main_fontsize=26,D2_secondary_fontsize=18,
+                D1_main_fontsize=26,D1_secondary_fontsize=18)
 
         plotter.export( outroot+'_triplot_'+str(key)+pform )
         plotter.close_plot()
