@@ -80,8 +80,13 @@ import cosmicfish_pylib.fisher_plot_analysis as fpa
 import cosmicfish_pylib.fisher_plot          as fp
 
 
-
 # ***************************************************************************************
+
+def get_with_default(section,name, default=''):
+    try:
+        return Config.get(section,name)
+    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        return default
 
 # protection against importing:
 if __name__ == "__main__":
@@ -129,11 +134,16 @@ if __name__ == "__main__":
     outroot   = ConfigSectionMap("General Options")['outroot']
     files     = Config.get("General Options", "fishers").split("\n")
     derived   = Config.getboolean("General Options", "derived")
-    sum_fish  = Config.get("General Options", "sum_fish").split("\n")
+    sum_fish1  = get_with_default("General Options", "sum_fish1").split("\n")
+    sum_fish2  = get_with_default("General Options", "sum_fish2").split("\n")
+    sum_fish3  = get_with_default("General Options", "sum_fish3").split("\n")
+    sum_fish4  = get_with_default("General Options", "sum_fish4").split("\n")
+    usercolors  = get_with_default("General Options", "colors").split("\n")
     eliminate = Config.getboolean("General Options", "eliminate")
     fishnames = Config.get("General Options", "names").split("\n")
     pform     = '.pdf'
-
+    summax = 4
+    sum_fish = [sum_fish1, sum_fish2, sum_fish3, sum_fish4]
     #General screen output
     if not args.quiet:
        print 'GENERAL OPTIONS:'
@@ -144,10 +154,11 @@ if __name__ == "__main__":
        print ' Bounds from these matrices will be computed:'
        for elem in files:
            print elem
-       if sum_fish[0]:
-           print 'Also the combination of these will be computed:'
-           for elem in sum_fish:
-               print elem
+       for si in range(summax):
+           if sum_fish[si][0]:
+               print '#1 Also the combination of these will be computed:'
+               for elem in sum_fish[si]:
+                   print elem
        print ' ---------------------------------'
        print
        print
@@ -163,43 +174,69 @@ if __name__ == "__main__":
            print(str(outdir)+'  exists already')
 
     if not files[0]:
-       if not sum_fish[0]:
+       if not sum_fish[0][0]:
           print 'NO MATRICES TO WORK WITH!'
           exit()
        else:
-          files = sum_fish
-          print 'No fishers to plot, using only the combined one'
-
-
+          files = []
+          #for si in range(summax):
+          #    if sum_fish[si][0]:
+          #        print("entering extend")
+          #        files.extend(sum_fish[si])
+          print 'No single fishers to plot, using only the combined ones'
+    
+    print("files")
+    print(files)
     #MOD: too much putput here!
+    summing = range(summax)
+    
     if derived is not False:
-       fishers = fpa.CosmicFish_FisherAnalysis(fisher_path=files, with_derived=True)
-       if sum_fish[0]:
-          print 'NOT HERE'
-          summing = fpa.CosmicFish_FisherAnalysis(fisher_path=sum_fish, with_derived=True)
+        fishers = fpa.CosmicFish_FisherAnalysis(fisher_path=files, with_derived=True)
+        for si in range(summax):
+            if sum_fish[si][0]:
+                print 'NOT HERE'
+                summing[si] = fpa.CosmicFish_FisherAnalysis(fisher_path=sum_fish[si], with_derived=True)
     else:
-       fishers = fpa.CosmicFish_FisherAnalysis(fisher_path=files, with_derived=False)
-       if sum_fish[0]:
-          summing = fpa.CosmicFish_FisherAnalysis(fisher_path=sum_fish, with_derived=False)
+        fishers = fpa.CosmicFish_FisherAnalysis(fisher_path=files, with_derived=False)
+        for si in range(summax):
+            if sum_fish[si][0]:
+                print("enter sum pair")
+                summing[si] = fpa.CosmicFish_FisherAnalysis(fisher_path=sum_fish[si], with_derived=False)
    
 
 
     fishers_temp = fpa.CosmicFish_FisherAnalysis()
     fisher_list = fishers.get_fisher_matrix()
-    if sum_fish[0]:
-       summing_list = summing.get_fisher_matrix()
-       for fish in summing_list[1:]:
-          summing_list[0] = summing_list[0]+fish
-       fisher_list.append(summing_list[0])
+    
+    print("Number of fishers before sum: ")
+    print(len(fisher_list))
+    
+    for si in range(summax):
+        if sum_fish[si][0]:
+            summing_list = summing[si].get_fisher_matrix()
+            for fish in summing_list[1:]:
+                summing_list[0] = summing_list[0]+fish
+            fisher_list.append(summing_list[0])
+
+    print("Number of fishers: ")
+    print(len(fisher_list))
 
     for i in range(len(fisher_list)):
-       fisher_list[i].name = fishnames[i]
+        fisher_list[i].name = fishnames[i]
 
 
     fishers_temp.add_fisher_matrix( fisher_list[:] )
     fishers = fishers_temp
-
-
+    if usercolors[0]:
+        color_dict = {'solid_colors' : usercolors, 
+                      'line_colors' : usercolors}
+    else: 
+        color_dict = None
+ 
+    #rescale factors for plot ranges
+    ##rescale_factors_D2 = [0.42,0.2,0.42,0.42,0.42,0.42,0.42]
+    rescale_factors_D2   = {'default' : 0.42, 'h' : 0.05}
+    rescale_factors_D1   = {'default' : 1.0, 'h' : 0.1}
     #producing 1D plots
     num1D = Config.items( "1Dplot" )
         
@@ -214,6 +251,7 @@ if __name__ == "__main__":
            fishers_temp = fishers_temp.reshuffle( params=params )
 
         plot_settings = fps.CosmicFish_PlotSettings()
+        fps.CosmicFish_PlotSettings.update(plot_settings, color_dict)
         plotter = fp.CosmicFishPlotter( settings=plot_settings, fishers=fishers_temp)
 
         plotter.new_plot()
@@ -241,9 +279,10 @@ if __name__ == "__main__":
            fishers_temp = fishers_temp.reshuffle( params=params )
 
         plot_settings = fps.CosmicFish_PlotSettings()
-        #plot_settings = {'solid_colors' : ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']}
+        fps.CosmicFish_PlotSettings.update(plot_settings, color_dict)
+        print("**** colors ****")
+        print(plot_settings.solid_colors)
         plotter = fp.CosmicFishPlotter( settings=plot_settings, fishers=fishers_temp)
-        #plotter = fp.CosmicFishPlotter(fishers=fishers_temp)
 
         if params is not None:
            params = [ list(i) for i in it.combinations(params, 2)]
@@ -251,7 +290,7 @@ if __name__ == "__main__":
               raise ValueError('Not enough parameters for 2D plot.')
  
         plotter.new_plot()
-        plotter.plot2D( params=params )
+        plotter.plot2D( params=params, legend_fontsize=18.0, D2_range_factors=rescale_factors_D2)
 
         plotter.export( outroot+'_2Dplot_'+str(key)+pform )
         plotter.close_plot()
@@ -265,7 +304,6 @@ if __name__ == "__main__":
     #Producing triangular plots
     numtri = Config.items( "triplot" )
     if not args.quiet and len(numtri)>0:
-        print 
         print 'Producing triangular plots:'
     for key, params in numtri:
         params = Config.get("triplot", key).split(",")
@@ -273,12 +311,20 @@ if __name__ == "__main__":
         fishers_temp = fishers
         if eliminate is not False:
            fishers_temp = fishers_temp.reshuffle( params=params )
-
+        
+        if len(params) > 3:
+            legendfont=28.0
+        else:
+            legendfont=9.0
         plot_settings = fps.CosmicFish_PlotSettings()
+        fps.CosmicFish_PlotSettings.update(plot_settings, color_dict)
         plotter = fp.CosmicFishPlotter( settings=plot_settings, fishers=fishers_temp)
 
         plotter.new_plot()
-        plotter.plot_tri( params=params )
+        plotter.plot_tri( params=params, legend_takes_place_plot_tri=True, 
+                legend_fontsize=legendfont, D2_range_factors=rescale_factors_D2, 
+                D1_range_factors=rescale_factors_D1 ,
+                D1_num_points=1000)
 
         plotter.export( outroot+'_triplot_'+str(key)+pform )
         plotter.close_plot()
